@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TextShield</title>
-    <link rel="icon" href="earth-icon.png" type="image/png"> <!-- Link to the PNG icon -->
+    <link rel="icon" href="icon.png" type="image/png"> <!-- Updated favicon -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -20,10 +20,14 @@
             text-align: center;
         }
 
-        input[type="text"], input[type="password"] {
-            width: calc(100% - 20px);
-            padding: 10px;
+        .input-container {
+            position: relative;
             margin-bottom: 10px;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: calc(100% - 40px); /* Adjusted for the icon */
+            padding: 10px;
             border: none;
             border-radius: 5px;
             background-color: #333;
@@ -51,24 +55,52 @@
 
         .output-label {
             font-size: 1.2em;
-            white-space: pre-line; /* Preserve line breaks */
-            word-break: break-word; /* Break long words if necessary */
+            white-space: pre-line; 
+            word-break: break-word; 
             text-align: center;
             display: inline-block;
+        }
+
+        .eye-icon {
+            position: absolute;
+            right: 18px; /* Adjusted position to move the eye icon slightly left */
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            width: 24px; /* Adjust icon size */
+            height: 24px; /* Adjust icon size */
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>TextShield</h1>
-        <input id="textInput" type="text" placeholder="Enter text to encrypt or decrypt">
-        <input id="keyInput" type="password" placeholder="Enter encryption key"> <!-- Changed to password type -->
-        
+        <div class="input-container">
+            <input id="textInput" type="text" placeholder="Enter text to encrypt or decrypt">
+        </div>
+        <div class="input-container">
+            <input id="keyInput" type="password" placeholder="Enter encryption key">
+            <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
+                 onmousedown="toggleKeyVisibility(true)" 
+                 onmouseup="toggleKeyVisibility(false)" 
+                 onmouseleave="toggleKeyVisibility(false)">
+                <path d="M12 4.5C7 4.5 2.7 8.8 1 12c1.7 3.2 6 7.5 11 7.5 5 0 9.3-4.3 11-7.5-1.7-3.2-6-7.5-11-7.5zm0 11c-1.9 0-3.5-1.6-3.5-3.5S10.1 9.5 12 9.5 15.5 11.1 15.5 13 13.9 15.5 12 15.5zm0-9C10.3 6.5 9 7.8 9 9.5S10.3 12.5 12 12.5 15 11.2 15 9.5 13.7 6.5 12 6.5z"/>
+            </svg>
+        </div>
+
         <button onclick="encryptText()">Encrypt</button>
         <button onclick="decryptText()">Decrypt</button>
         
         <div class="output-container">
-            <label id="outputLabel" class="output-label">...</label>
+            <div class="input-container">
+                <label id="outputLabel" class="output-label">...</label>
+                <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
+                     id="outputEyeIcon" onmousedown="toggleOutputVisibility(true)" 
+                     onmouseup="toggleOutputVisibility(false)" 
+                     onmouseleave="toggleOutputVisibility(false)">
+                    <path d="M12 4.5C7 4.5 2.7 8.8 1 12c1.7 3.2 6 7.5 11 7.5 5 0 9.3-4.3 11-7.5-1.7-3.2-6-7.5-11-7.5zm0 11c-1.9 0-3.5-1.6-3.5-3.5S10.1 9.5 12 9.5 15.5 11.1 15.5 13 13.9 15.5 12 15.5zm0-9C10.3 6.5 9 7.8 9 9.5S10.3 12.5 12 12.5 15 11.2 15 9.5 13.7 6.5 12 6.5z"/>
+                </svg>
+            </div>
             <div>
                 <button id="copyButton" onclick="copyToClipboard()">Copy</button>
             </div>
@@ -76,6 +108,8 @@
     </div>
 
     <script>
+        let originalOutput = '';
+
         async function getKeyFromPassword(password) {
             const encoder = new TextEncoder();
             const keyMaterial = await crypto.subtle.importKey(
@@ -89,7 +123,7 @@
             return crypto.subtle.deriveKey(
                 {
                     name: "PBKDF2",
-                    salt: encoder.encode("unique-salt"), // Should use a unique salt per user
+                    salt: encoder.encode("unique-salt"), 
                     iterations: 100000,
                     hash: "SHA-256"
                 },
@@ -106,7 +140,7 @@
 
             if (text && password) {
                 const key = await getKeyFromPassword(password);
-                const iv = crypto.getRandomValues(new Uint8Array(12)); // 12 bytes for AES-GCM
+                const iv = crypto.getRandomValues(new Uint8Array(12)); 
 
                 const encryptedContent = await crypto.subtle.encrypt(
                     { name: "AES-GCM", iv: iv },
@@ -158,18 +192,36 @@
             });
         }
 
-        let originalOutput = '';
-
         function formatOutput(text) {
-            originalOutput = text; // Store the original output for copying
+            originalOutput = text; 
             if (text.length <= 2) {
-                return text; // Return as is if the text is too short to mask
+                return text; 
             }
             const firstChar = text.charAt(0);
             const lastChar = text.charAt(text.length - 1);
             const maskedLength = text.length - 2;
             const maskedOutput = firstChar + '*'.repeat(maskedLength) + lastChar;
             return maskedOutput;
+        }
+
+        function toggleKeyVisibility(visible) {
+            const keyInput = document.getElementById('keyInput');
+            keyInput.type = visible ? 'text' : 'password';
+        }
+
+        function toggleOutputVisibility(visible) {
+            const outputLabel = document.getElementById('outputLabel');
+            const outputEyeIcon = document.getElementById('outputEyeIcon');
+
+            if (visible) {
+                outputLabel.innerText = originalOutput; // Show full output
+                outputEyeIcon.setAttribute("viewBox", "0 0 24 24"); // Change icon to open eye
+                outputEyeIcon.innerHTML = '<path d="M12 4.5C7 4.5 2.7 8.8 1 12c1.7 3.2 6 7.5 11 7.5 5 0 9.3-4.3 11-7.5-1.7-3.2-6-7.5-11-7.5zm0 11c-1.9 0-3.5-1.6-3.5-3.5S10.1 9.5 12 9.5 15.5 11.1 15.5 13 13.9 15.5 12 15.5zm0-9C10.3 6.5 9 7.8 9 9.5S10.3 12.5 12 12.5 15 11.2 15 9.5 13.7 6.5 12 6.5z"/>';
+            } else {
+                outputLabel.innerText = formatOutput(originalOutput); // Mask output again
+                outputEyeIcon.setAttribute("viewBox", "0 0 24 24"); // Change icon back to closed eye
+                outputEyeIcon.innerHTML = '<path d="M12 4.5C7 4.5 2.7 8.8 1 12c1.7 3.2 6 7.5 11 7.5 5 0 9.3-4.3 11-7.5-1.7-3.2-6-7.5-11-7.5zm0 11c-1.9 0-3.5-1.6-3.5-3.5S10.1 9.5 12 9.5 15.5 11.1 15.5 13 13.9 15.5 12 15.5zm0-9C10.3 6.5 9 7.8 9 9.5S10.3 12.5 12 12.5 15 11.2 15 9.5 13.7 6.5 12 6.5z"/>';
+            }
         }
     </script>
 </body>

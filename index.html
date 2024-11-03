@@ -99,7 +99,7 @@
             document.getElementById('outputLabel').innerText = `Output: ${decryptedText}`;
         }
 
-        function copyToClipboard() {
+        function copyToClipboard() { 
             const outputLabel = document.getElementById('outputLabel').innerText;
             navigator.clipboard.writeText(outputLabel.replace('Output: ', '')).then(() => {
                 alert('Copied to clipboard!');

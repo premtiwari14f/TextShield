@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TextShield</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a; /* Dark background */
+            color: #ffffff; /* White text */
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            text-align: center;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #333; /* Darker input field */
+            color: #fff; /* White text */
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #444; /* Darker button color */
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #555; /* Button hover color */
+        }
+
+        .output-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TextShield</h1>
+        <input id="textInput" type="text" placeholder="Enter text to encrypt or decrypt">
+        <input id="keyInput" type="text" placeholder="Enter encryption key">
+        
+        <button onclick="encryptText()">Encrypt</button>
+        <button onclick="decryptText()">Decrypt</button>
+        
+        <div class="output-container">
+            <label id="outputLabel">Output:</label>
+            <button onclick="copyToClipboard()">Copy</button>
+        </div>
+    </div>
+
+    <script>
+        function xorEncrypt(text, key) {
+            let encrypted = '';
+            for (let i = 0; i < text.length; i++) {
+                encrypted += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+            }
+            return btoa(encrypted); // Encode to base64
+        }
+
+        function xorDecrypt(encryptedText, key) {
+            try {
+                let decrypted = atob(encryptedText);
+                let original = '';
+                for (let i = 0; i < decrypted.length; i++) {
+                    original += String.fromCharCode(decrypted.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+                }
+                return original;
+            } catch (e) {
+                return "!!! Decryption failed: Invalid Input. !!!";
+            }
+        }
+
+        function encryptText() {
+            const text = document.getElementById('textInput').value;
+            const key = document.getElementById('keyInput').value;
+            const encryptedText = xorEncrypt(text, key);
+            document.getElementById('outputLabel').innerText = `Output: ${encryptedText}`;
+        }
+
+        function decryptText() {
+            const encryptedText = document.getElementById('textInput').value;
+            const key = document.getElementById('keyInput').value;
+            const decryptedText = xorDecrypt(encryptedText, key);
+            document.getElementById('outputLabel').innerText = `Output: ${decryptedText}`;
+        }
+
+        function copyToClipboard() {
+            const outputLabel = document.getElementById('outputLabel').innerText;
+            navigator.clipboard.writeText(outputLabel.replace('Output: ', '')).then(() => {
+                alert('Copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+</html>

@@ -70,6 +70,13 @@
             width: 24px; /* Adjust icon size */
             height: 24px; /* Adjust icon size */
         }
+
+        .output-eye-icon {
+            cursor: pointer;
+            width: 24px; /* Adjust icon size */
+            height: 24px; /* Adjust icon size */
+            margin-bottom: 5px; /* Space below the eye icon */
+        }
     </style>
 </head>
 <body>
@@ -94,13 +101,13 @@
         <div class="output-container">
             <div class="input-container">
                 <label id="outputLabel" class="output-label">...</label>
-                <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
-                     id="outputEyeIcon" onmousedown="toggleOutputVisibility(true)" 
-                     onmouseup="toggleOutputVisibility(false)" 
-                     onmouseleave="toggleOutputVisibility(false)">
-                    <path d="M12 4.5C7 4.5 2.7 8.8 1 12c1.7 3.2 6 7.5 11 7.5 5 0 9.3-4.3 11-7.5-1.7-3.2-6-7.5-11-7.5zm0 11c-1.9 0-3.5-1.6-3.5-3.5S10.1 9.5 12 9.5 15.5 11.1 15.5 13 13.9 15.5 12 15.5zm0-9C10.3 6.5 9 7.8 9 9.5S10.3 12.5 12 12.5 15 11.2 15 9.5 13.7 6.5 12 6.5z"/>
-                </svg>
             </div>
+            <svg class="output-eye-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
+                 id="outputEyeIcon" onmousedown="toggleOutputVisibility(true)" 
+                 onmouseup="toggleOutputVisibility(false)" 
+                 onmouseleave="toggleOutputVisibility(false)">
+                <path d="M12 4.5C7 4.5 2.7 8.8 1 12c1.7 3.2 6 7.5 11 7.5 5 0 9.3-4.3 11-7.5-1.7-3.2-6-7.5-11-7.5zm0 11c-1.9 0-3.5-1.6-3.5-3.5S10.1 9.5 12 9.5 15.5 11.1 15.5 13 13.9 15.5 12 15.5zm0-9C10.3 6.5 9 7.8 9 9.5S10.3 12.5 12 12.5 15 11.2 15 9.5 13.7 6.5 12 6.5z"/>
+            </svg>
             <div>
                 <button id="copyButton" onclick="copyToClipboard()">Copy</button>
             </div>
@@ -211,16 +218,11 @@
 
         function toggleOutputVisibility(visible) {
             const outputLabel = document.getElementById('outputLabel');
-            const outputEyeIcon = document.getElementById('outputEyeIcon');
-
+            const currentText = outputLabel.innerText;
             if (visible) {
-                outputLabel.innerText = originalOutput; // Show full output
-                outputEyeIcon.setAttribute("viewBox", "0 0 24 24"); // Change icon to open eye
-                outputEyeIcon.innerHTML = '<path d="M12 4.5C7 4.5 2.7 8.8 1 12c1.7 3.2 6 7.5 11 7.5 5 0 9.3-4.3 11-7.5-1.7-3.2-6-7.5-11-7.5zm0 11c-1.9 0-3.5-1.6-3.5-3.5S10.1 9.5 12 9.5 15.5 11.1 15.5 13 13.9 15.5 12 15.5zm0-9C10.3 6.5 9 7.8 9 9.5S10.3 12.5 12 12.5 15 11.2 15 9.5 13.7 6.5 12 6.5z"/>';
+                outputLabel.innerText = originalOutput;
             } else {
-                outputLabel.innerText = formatOutput(originalOutput); // Mask output again
-                outputEyeIcon.setAttribute("viewBox", "0 0 24 24"); // Change icon back to closed eye
-                outputEyeIcon.innerHTML = '<path d="M12 4.5C7 4.5 2.7 8.8 1 12c1.7 3.2 6 7.5 11 7.5 5 0 9.3-4.3 11-7.5-1.7-3.2-6-7.5-11-7.5zm0 11c-1.9 0-3.5-1.6-3.5-3.5S10.1 9.5 12 9.5 15.5 11.1 15.5 13 13.9 15.5 12 15.5zm0-9C10.3 6.5 9 7.8 9 9.5S10.3 12.5 12 12.5 15 11.2 15 9.5 13.7 6.5 12 6.5z"/>';
+                outputLabel.innerText = formatOutput(currentText);
             }
         }
     </script>

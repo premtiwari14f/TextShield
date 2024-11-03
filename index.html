@@ -46,6 +46,10 @@
         .output-container {
             margin-top: 20px;
         }
+
+        .output-label {
+            font-size: 1.2em; /* Adjust font size if desired */
+        }
     </style>
 </head>
 <body>
@@ -58,8 +62,10 @@
         <button onclick="decryptText()">Decrypt</button>
         
         <div class="output-container">
-            <label id="outputLabel">Output:</label>
-            <button onclick="copyToClipboard()">Copy</button>
+            <label id="outputLabel" class="output-label">...</label>
+            <div>
+                <button id="copyButton" onclick="copyToClipboard()">Copy</button>
+            </div>
         </div>
     </div>
 
@@ -88,20 +94,28 @@
         function encryptText() {
             const text = document.getElementById('textInput').value;
             const key = document.getElementById('keyInput').value;
-            const encryptedText = xorEncrypt(text, key);
-            document.getElementById('outputLabel').innerText = `Output: ${encryptedText}`;
+            if (text && key) {
+                const encryptedText = xorEncrypt(text, key);
+                document.getElementById('outputLabel').innerText = encryptedText;
+            } else {
+                document.getElementById('outputLabel').innerText = '...';
+            }
         }
 
         function decryptText() {
             const encryptedText = document.getElementById('textInput').value;
             const key = document.getElementById('keyInput').value;
-            const decryptedText = xorDecrypt(encryptedText, key);
-            document.getElementById('outputLabel').innerText = `Output: ${decryptedText}`;
+            if (encryptedText && key) {
+                const decryptedText = xorDecrypt(encryptedText, key);
+                document.getElementById('outputLabel').innerText = decryptedText;
+            } else {
+                document.getElementById('outputLabel').innerText = '...';
+            }
         }
 
         function copyToClipboard() { 
             const outputLabel = document.getElementById('outputLabel').innerText;
-            navigator.clipboard.writeText(outputLabel.replace('Output: ', '')).then(() => {
+            navigator.clipboard.writeText(outputLabel).then(() => {
                 alert('Copied to clipboard!');
             });
         }

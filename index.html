@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TextShield</title>
+    <link rel="icon" href="icon.png" type="image/png"> <!-- Link to the PNG icon -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -157,8 +158,8 @@
         }
 
         function formatOutput(text) {
-            // Insert a newline every 40 characters
-            return text.match(/.{1,40}/g).join('\n');
+            // Insert a newline every 30 characters
+            return text.match(/.{1,30}/g).join('\n');
         }
     </script>
 </body>

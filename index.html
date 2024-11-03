@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TextShield</title>
-    <link rel="icon" href="icon.png" type="image/png"> <!-- Link to the PNG icon -->
+    <link rel="icon" href="earth-icon.png" type="image/png"> <!-- Link to the PNG icon -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -20,7 +20,7 @@
             text-align: center;
         }
 
-        input[type="text"] {
+        input[type="text"], input[type="password"] {
             width: calc(100% - 20px);
             padding: 10px;
             margin-bottom: 10px;
@@ -62,7 +62,7 @@
     <div class="container">
         <h1>TextShield</h1>
         <input id="textInput" type="text" placeholder="Enter text to encrypt or decrypt">
-        <input id="keyInput" type="text" placeholder="Enter encryption key">
+        <input id="keyInput" type="password" placeholder="Enter encryption key"> <!-- Changed to password type -->
         
         <button onclick="encryptText()">Encrypt</button>
         <button onclick="decryptText()">Decrypt</button>
@@ -141,7 +141,8 @@
                         encryptedBytes
                     );
 
-                    document.getElementById('outputLabel').innerText = formatOutput(new TextDecoder().decode(decryptedContent));
+                    const originalText = new TextDecoder().decode(decryptedContent);
+                    document.getElementById('outputLabel').innerText = formatOutput(originalText);
                 } catch (e) {
                     document.getElementById('outputLabel').innerText = "!!! Decryption failed: Invalid Input. !!!";
                 }
@@ -152,14 +153,23 @@
 
         function copyToClipboard() { 
             const outputLabel = document.getElementById('outputLabel').innerText;
-            navigator.clipboard.writeText(outputLabel.replace(/\n/g, '')).then(() => {
+            navigator.clipboard.writeText(originalOutput).then(() => {
                 alert('Copied to clipboard!');
             });
         }
 
+        let originalOutput = '';
+
         function formatOutput(text) {
-            // Insert a newline every 30 characters
-            return text.match(/.{1,30}/g).join('\n');
+            originalOutput = text; // Store the original output for copying
+            if (text.length <= 2) {
+                return text; // Return as is if the text is too short to mask
+            }
+            const firstChar = text.charAt(0);
+            const lastChar = text.charAt(text.length - 1);
+            const maskedLength = text.length - 2;
+            const maskedOutput = firstChar + '*'.repeat(maskedLength) + lastChar;
+            return maskedOutput;
         }
     </script>
 </body>

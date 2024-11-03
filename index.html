@@ -75,7 +75,7 @@
             cursor: pointer;
             width: 24px; /* Adjust icon size */
             height: 24px; /* Adjust icon size */
-            margin-bottom: 5px; /* Space below the eye icon */
+            margin-top: 5px; /* Space above the copy button */
         }
     </style>
 </head>
@@ -88,9 +88,7 @@
         <div class="input-container">
             <input id="keyInput" type="password" placeholder="Enter encryption key">
             <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
-                 onmousedown="toggleKeyVisibility(true)" 
-                 onmouseup="toggleKeyVisibility(false)" 
-                 onmouseleave="toggleKeyVisibility(false)">
+                 onclick="toggleKeyVisibility()">
                 <path d="M12 4.5C7 4.5 2.7 8.8 1 12c1.7 3.2 6 7.5 11 7.5 5 0 9.3-4.3 11-7.5-1.7-3.2-6-7.5-11-7.5zm0 11c-1.9 0-3.5-1.6-3.5-3.5S10.1 9.5 12 9.5 15.5 11.1 15.5 13 13.9 15.5 12 15.5zm0-9C10.3 6.5 9 7.8 9 9.5S10.3 12.5 12 12.5 15 11.2 15 9.5 13.7 6.5 12 6.5z"/>
             </svg>
         </div>
@@ -101,13 +99,11 @@
         <div class="output-container">
             <div class="input-container">
                 <label id="outputLabel" class="output-label">...</label>
+                <svg class="output-eye-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
+                     onclick="toggleOutputVisibility()">
+                    <path d="M12 4.5C7 4.5 2.7 8.8 1 12c1.7 3.2 6 7.5 11 7.5 5 0 9.3-4.3 11-7.5-1.7-3.2-6-7.5-11-7.5zm0 11c-1.9 0-3.5-1.6-3.5-3.5S10.1 9.5 12 9.5 15.5 11.1 15.5 13 13.9 15.5 12 15.5zm0-9C10.3 6.5 9 7.8 9 9.5S10.3 12.5 12 12.5 15 11.2 15 9.5 13.7 6.5 12 6.5z"/>
+                </svg>
             </div>
-            <svg class="output-eye-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
-                 id="outputEyeIcon" onmousedown="toggleOutputVisibility(true)" 
-                 onmouseup="toggleOutputVisibility(false)" 
-                 onmouseleave="toggleOutputVisibility(false)">
-                <path d="M12 4.5C7 4.5 2.7 8.8 1 12c1.7 3.2 6 7.5 11 7.5 5 0 9.3-4.3 11-7.5-1.7-3.2-6-7.5-11-7.5zm0 11c-1.9 0-3.5-1.6-3.5-3.5S10.1 9.5 12 9.5 15.5 11.1 15.5 13 13.9 15.5 12 15.5zm0-9C10.3 6.5 9 7.8 9 9.5S10.3 12.5 12 12.5 15 11.2 15 9.5 13.7 6.5 12 6.5z"/>
-            </svg>
             <div>
                 <button id="copyButton" onclick="copyToClipboard()">Copy</button>
             </div>
@@ -116,6 +112,8 @@
 
     <script>
         let originalOutput = '';
+        let outputVisible = false; // Track output visibility
+        let keyVisible = false; // Track key visibility
 
         async function getKeyFromPassword(password) {
             const encoder = new TextEncoder();
@@ -130,7 +128,7 @@
             return crypto.subtle.deriveKey(
                 {
                     name: "PBKDF2",
-                    salt: encoder.encode("unique-salt"), 
+                    salt: encoder.encode("unique-salt"),
                     iterations: 100000,
                     hash: "SHA-256"
                 },
@@ -158,7 +156,8 @@
                 const encryptedBytes = new Uint8Array(encryptedContent);
                 const encryptedText = btoa(String.fromCharCode(...iv) + String.fromCharCode(...encryptedBytes));
 
-                document.getElementById('outputLabel').innerText = formatOutput(encryptedText);
+                originalOutput = encryptedText; // Save the encrypted output
+                document.getElementById('outputLabel').innerText = formatOutput(encryptedText); // Display output
             } else {
                 document.getElementById('outputLabel').innerText = '...';
             }
@@ -183,47 +182,46 @@
                     );
 
                     const originalText = new TextDecoder().decode(decryptedContent);
-                    document.getElementById('outputLabel').innerText = formatOutput(originalText);
+                    originalOutput = originalText; // Save the decrypted output
+                    document.getElementById('outputLabel').innerText = formatOutput(originalText); // Display output
                 } catch (e) {
-                    document.getElementById('outputLabel').innerText = "!!! Decryption failed: Invalid Input. !!!";
+                    document.getElementById('outputLabel').innerText = 'Decryption failed!';
                 }
             } else {
                 document.getElementById('outputLabel').innerText = '...';
             }
         }
 
-        function copyToClipboard() { 
-            const outputLabel = document.getElementById('outputLabel').innerText;
-            navigator.clipboard.writeText(originalOutput).then(() => {
-                alert('Copied to clipboard!');
-            });
-        }
-
         function formatOutput(text) {
-            originalOutput = text; 
             if (text.length <= 2) {
-                return text; 
+                return text; // If the text is too short, return it as is
             }
-            const firstChar = text.charAt(0);
-            const lastChar = text.charAt(text.length - 1);
-            const maskedLength = text.length - 2;
-            const maskedOutput = firstChar + '*'.repeat(maskedLength) + lastChar;
-            return maskedOutput;
+            const firstChar = text[0];
+            const lastChar = text[text.length - 1];
+            const asterisks = '*'.repeat(text.length - 2); // Create asterisks for middle characters
+            return firstChar + asterisks + lastChar; // Concatenate first char, asterisks, and last char
         }
 
-        function toggleKeyVisibility(visible) {
+        function toggleKeyVisibility() {
             const keyInput = document.getElementById('keyInput');
-            keyInput.type = visible ? 'text' : 'password';
+            keyVisible = !keyVisible;
+            keyInput.type = keyVisible ? 'text' : 'password'; // Toggle between text and password
         }
 
-        function toggleOutputVisibility(visible) {
+        function toggleOutputVisibility() {
             const outputLabel = document.getElementById('outputLabel');
-            const currentText = outputLabel.innerText;
-            if (visible) {
-                outputLabel.innerText = originalOutput;
+            if (outputVisible) {
+                outputLabel.innerText = formatOutput(originalOutput); // Show asterisks
             } else {
-                outputLabel.innerText = formatOutput(currentText);
+                outputLabel.innerText = originalOutput; // Show original output
             }
+            outputVisible = !outputVisible; // Toggle visibility state
+        }
+
+        function copyToClipboard() {
+            navigator.clipboard.writeText(originalOutput).then(() => {
+                alert('Output copied to clipboard!');
+            });
         }
     </script>
 </body>

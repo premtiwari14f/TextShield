@@ -160,6 +160,7 @@
                 document.getElementById('outputLabel').innerText = formatOutput(encryptedText); // Display output
             } else {
                 document.getElementById('outputLabel').innerText = '...';
+                originalOutput = '...';
             }
         }
 
@@ -186,9 +187,11 @@
                     document.getElementById('outputLabel').innerText = formatOutput(originalText); // Display output
                 } catch (e) {
                     document.getElementById('outputLabel').innerText = 'Decryption failed!';
+                    originalOutput = 'Decryption failed!';
                 }
             } else {
                 document.getElementById('outputLabel').innerText = '...';
+                originalOutput = '...';
             }
         }
 
